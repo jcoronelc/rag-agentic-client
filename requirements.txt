@@ -2,4 +2,4 @@ streamlit
 requests
 langchain
 langchain-community
-mem0
+mem0ai
