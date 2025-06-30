@@ -114,8 +114,8 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
 def get_response(chat_id, question):
     """ Obtiene la respuesta de la bd vectorial basada en la consulta. """
 
-    collection_name_active = "bdv_bio2"
-    collection_name_active_summary = "bdv_bio2"
+    collection_name_active = "bdv2"
+    collection_name_active_summary = "bdvs3"
     payload = {
         "model_llm_responses": selected_llm_model,
         "collection_name_active": collection_name_active, 
