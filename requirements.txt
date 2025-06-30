@@ -3,3 +3,4 @@ requests
 langchain
 langchain-community
 mem0ai
+pymongo
