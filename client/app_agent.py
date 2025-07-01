@@ -1,16 +1,27 @@
+from openai import OpenAI
+
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_community.chat_message_histories import ChatMessageHistory
-from mem0 import MemoryClient
 from datetime import datetime
+
+from agent.orchestrators.base_orchestrators import *
+from llm import LLMClient
+from agent.crews.agentic_crew_4.orchestrator import build_crew_4
+from agent.crews.agentic_crew_finetuning.orchestrator import build_crew_finetuning
+
 
 import streamlit as st
 import uuid  
 import json
 import os
-
+import time
 import requests
 
+from mem0 import MemoryClient
+
+os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
+ 
 SESSION_ID = "1234"
 B_INST, E_INST = "<s>[INST]", "[/INST]</s>"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
@@ -37,7 +48,9 @@ def save_history():
         json=chat_data
     )
     return response.ok
-
+   
+    # with open("./data/output/chat/agent_chat_history.json", "w") as f:
+    #     json.dump(chat_data, f, indent=4)
         
 def load_history():
     try:
@@ -109,14 +122,11 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
         st.session_state.chat_store[session_id] = ChatMessageHistory()
     return st.session_state.chat_store[session_id]
 
-
 def get_response(chat_id, question):
     """ Obtiene la respuesta de la bd vectorial basada en la consulta. """
-
+    
     collection_name_active = "bdv2"
     collection_name_active_summary = "bdvs3"
-    use_memory = False
-
     payload = {
         "model_llm_responses": selected_llm_model,
         "collection_name_active": collection_name_active, 
@@ -124,18 +134,86 @@ def get_response(chat_id, question):
         "question": question,
         "top_k": 4,
         "use_external_data": True,
-        "use_memory": use_memory,
-        "chat_id": chat_id
+        "use_memory": False,
+        "crew": "crew_4"
     }
 
     try:
-        res = requests.post(f"{API_BASE_URL}/ask", json=payload)
+        res = requests.post(f"{API_BASE_URL}/agentic/ask", json=payload)
         return res.json().get("response", "Sin respuesta")
     except Exception as e:
         return f"Error al consultar /ask: {str(e)}"
+    
+    # llm_client = LLMClient(
+    #     provider=provider,   
+    #     model=selected_llm_model,
+    #     base_url=base_url,  
+    #     api_key=api_key       
+    # )
+    # llm_crew = llm_client.get_llm_crew()
 
+    # # question = query_rephrasing_with_crewai(question, llm_crew)
+    # # user_memory(chat_id) #pasar historial de conversacion a memoria 
+    # inputs = {"question": question}
+    # print(question)
+
+    # #agentic_crew4
+    # rag_crew = build_crew_4(llm_crew)
+
+    # try:
+    #     result = rag_crew.kickoff(inputs=inputs)
+    #     response_text = result.raw 
+    #     return response_text if response_text else "No se ha encontrado información"
+    # except KeyError as e:
+    #     return f"Lo siento, ocurrio un error: {str(e)}"
+
+
+def get_response_finetuning(chat_id, question):
+    """ Obtiene la respuesta de la bd vectorial basada en la consulta. """
+    
+    print("Flujo con Fine-Tuning")
+    # question = query_rephrasing_with_crewai(question, selected_llm_model)
+    # # user_memory(chat_id) #pasar historial de conversacion a memoria 
+    # inputs = {"question": question}
+    # print(question)
+
+    # llm_client = LLMClient(
+    #     provider=provider,  
+    #     model=selected_llm_model,
+    #     base_url=base_url,  
+    #     api_key=api_key       
+    # )
+    # llm_crew = llm_client.get_llm_crew()
+
+    # #agentic_crew4
+    # finetuning_crew = build_crew_finetuning(llm_crew)
+
+    # try:
+    #     result = finetuning_crew.kickoff(inputs=inputs)
+    #     response_text = result.raw 
+    #     return response_text if response_text else "No se ha encontrado información"
+    # except KeyError as e:
+    #     return f"Lo siento, ocurrio un error: {str(e)}"
+
+# def user_memory(chat_id):
+    
+#     messages = [
+#         {
+#             "role": "user" if isinstance(msg, HumanMessage) else "assistant",
+#             "content": msg.content
+#         } 
+#         # for chat_id in st.session_state.history
+#         for msg in st.session_state.chat_store[chat_id].messages
+#     ]
+    
+#     if messages:
+#         client_memo.add(messages, user_id=chat_id)
+
+
+
+    
 ### ------- GUI ----------
-st.set_page_config(page_title="Chatbot RAG", page_icon="")
+st.set_page_config(page_title="Chatbot MultiAgente", page_icon="🦜")
 st.title("Chatea con :blue[tus datos] 🤖")
 
 # ---- Inicializacion de claves para la session
@@ -155,7 +233,6 @@ if "current_chat_id" not in st.session_state:
 
 # --- Sidebar: Historial de conversaciones ---
 st.sidebar.title("💬  Chats")
-
 
 # --- Crear nuevo chat ---
 if st.sidebar.button("➕ Nuevo Chat"):
@@ -179,8 +256,37 @@ chat_id = st.session_state.current_chat_id if st.session_state.current_chat_id e
 #     st.session_state.chat_store[new_chat_id] = ChatMessageHistory()
 #     st.session_state.current_chat_id = new_chat_id  
 #     save_history()
-    
+
+
 if chat_id:
+    
+    # rag_crew = Crew(
+    # agents=[retriever_agent, evaluator_agent, router_agent, answer_agent],
+    # tasks=[retriever_task, evaluator_task, router_task, answer_task],
+    # verbose=True,
+    # process=Process.sequential,
+    # # memory=True, # memory capabilities
+    # # memory_config={
+    # #     "provider": "mem0",
+    # #     "config": {"user_id": chat_id,
+    # #                "api_key": "m0-bnTCjYzJePVtZDrRmibHDe2zvkiByzrMSTde30OM"},
+    # #     "user_memory" : {}
+        
+    # # }
+    # )
+    # rag_crew = Crew(
+    # agents=[travel_agent],
+    # tasks=[planning_task],
+    # verbose=True,
+    # memory=True, # memory capabilities
+    # memory_config={
+    #     "provider": "mem0",
+    #     "config": {"user_id": chat_id,
+    #                "api_key": "m0-bnTCjYzJePVtZDrRmibHDe2zvkiByzrMSTde30OM"}
+    #     # "user_memory" : {}
+    # }
+    # )
+
     st.write(f"**Conversación activa:** `{chat_id}`")
 
     for message in st.session_state.chat_store[chat_id].messages:
@@ -194,7 +300,7 @@ if chat_id:
         if MESSAGE_TYPE != "unknown":
             with st.chat_message(MESSAGE_TYPE):
                 st.markdown(f"{message.content}")
-       
+
 # Entrar mensaje de usuario y seleccionar modelo LLM
 with st.container():
     col1, col2, col3 = st.columns([1, 4, 1])
@@ -202,7 +308,7 @@ with st.container():
     response = requests.get(f"{API_BASE_URL}/models/llm")
     if response.status_code == 200:
         models_llm = response.json()
-        
+
     with col1:
         selected_llm_model = st.selectbox(
             label="Modelo LLM", 
@@ -216,49 +322,27 @@ with st.container():
         user_query = st.chat_input("Escribe tu mensaje ✍")
         
     with col3: 
-        tab1, tab2 = st.columns([1, 1], gap="small")
+        if st.button("🗑 Limpiar"):
+            st.session_state.chat_store[chat_id] = ChatMessageHistory()
+            save_history() 
+            st.rerun()
 
-        with tab1:
-            if st.button("🗑"):
-                st.session_state.chat_store[chat_id] = ChatMessageHistory()
-                print(f"cleaning {chat_id}")
-                # delete_memory(chat_id) #eliminar la memoria para esa conversacion
-                save_history() 
-                st.rerun()
-        
-        with tab2:
-            if "show_uploader" not in st.session_state:
-                st.session_state.show_uploader = False
-
-            if st.button("📎"):
-                st.session_state.show_uploader = not st.session_state.show_uploader
-
-        if st.session_state.show_uploader:
-            uploaded_file = st.file_uploader("Arrastra un archivo aquí", type=["txt", "pdf"], key="upload_file")
-            
-            if uploaded_file:
-                collection_name = st.text_input("Nombre de la colección", key="collection_name")
-                if st.button("✅ Enviar"):
-                    with st.spinner("Subiendo archivo y creando colección..."):
-                        files = {
-                            "file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)
-                        }
-                        data = {
-                            "collection_name": collection_name
-                        }
-                        try:
-                            response = requests.post(f"{API_BASE_URL}/upload", files=files, data=data)
-                            if response.status_code == 200:
-                                st.success("Colección creada correctamente")
-                            else:
-                                st.error(f"Error al crear la colección: {response.text}")
-                        except Exception as e:
-                            st.error(f"Error de conexión: {str(e)}")
-        
 if user_query:
     with st.spinner("Generando respuesta..."):
-        response = get_response(chat_id, user_query)
+
+        start = time.time()
+
+        if selected_llm_model != 'mistralfinetuning':
+            response = get_response(chat_id, user_query)
+        else:
+            response = get_response_finetuning(chat_id, user_query)
         
+        end = time.time()
+        elapsed = end - start
+        hours, rem = divmod(elapsed, 3600)
+        minutes, seconds = divmod(rem, 60)
+        print(f"Tiempo total de ejecución: {int(hours)}h {int(minutes)}m {int(seconds)}s")
+
         st.session_state.chat_store[chat_id].add_message(HumanMessage(content=user_query))
         st.session_state.chat_store[chat_id].add_message(AIMessage(content=response))
 
