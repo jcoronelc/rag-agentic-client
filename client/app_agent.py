@@ -128,7 +128,7 @@ def get_response(chat_id, question):
         "use_external_data": True,
         "use_memory": use_memory,
         "chat_id": chat_id,
-        "crew": "crew_4"
+        "crew_name": "crew_4"
     }
 
     try:
