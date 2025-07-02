@@ -1,15 +1,7 @@
-from openai import OpenAI
-
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_community.chat_message_histories import ChatMessageHistory
 from datetime import datetime
-
-from agent.orchestrators.base_orchestrators import *
-from llm import LLMClient
-from agent.crews.agentic_crew_4.orchestrator import build_crew_4
-from agent.crews.agentic_crew_finetuning.orchestrator import build_crew_finetuning
-
 
 import streamlit as st
 import uuid  
@@ -17,8 +9,6 @@ import json
 import os
 import time
 import requests
-
-from mem0 import MemoryClient
 
 os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
  
@@ -44,7 +34,7 @@ def save_history():
     }
 
     response = requests.post(
-        f"{API_BASE_URL}/history/save_all", 
+        f"{API_BASE_URL}/agentic/history/save_all", 
         json=chat_data
     )
     return response.ok
@@ -54,7 +44,7 @@ def save_history():
         
 def load_history():
     try:
-        response = requests.get(f"{API_BASE_URL}/history/load_all")
+        response = requests.get(f"{API_BASE_URL}/agentic/history/load_all")
         if response.status_code == 200:
             chat_data = response.json()
             for chat_id, chat_info in chat_data.items():
@@ -127,6 +117,8 @@ def get_response(chat_id, question):
     
     collection_name_active = "bdv2"
     collection_name_active_summary = "bdvs3"
+    use_memory = True
+    
     payload = {
         "model_llm_responses": selected_llm_model,
         "collection_name_active": collection_name_active, 
@@ -134,7 +126,8 @@ def get_response(chat_id, question):
         "question": question,
         "top_k": 4,
         "use_external_data": True,
-        "use_memory": False,
+        "use_memory": use_memory,
+        "chat_id": chat_id,
         "crew": "crew_4"
     }
 
@@ -142,74 +135,35 @@ def get_response(chat_id, question):
         res = requests.post(f"{API_BASE_URL}/agentic/ask", json=payload)
         return res.json().get("response", "Sin respuesta")
     except Exception as e:
-        return f"Error al consultar /ask: {str(e)}"
+        return f"Error al consultar /agentic/ask: {str(e)}"
     
-    # llm_client = LLMClient(
-    #     provider=provider,   
-    #     model=selected_llm_model,
-    #     base_url=base_url,  
-    #     api_key=api_key       
-    # )
-    # llm_crew = llm_client.get_llm_crew()
-
-    # # question = query_rephrasing_with_crewai(question, llm_crew)
-    # # user_memory(chat_id) #pasar historial de conversacion a memoria 
-    # inputs = {"question": question}
-    # print(question)
-
-    # #agentic_crew4
-    # rag_crew = build_crew_4(llm_crew)
-
-    # try:
-    #     result = rag_crew.kickoff(inputs=inputs)
-    #     response_text = result.raw 
-    #     return response_text if response_text else "No se ha encontrado información"
-    # except KeyError as e:
-    #     return f"Lo siento, ocurrio un error: {str(e)}"
-
-
+ 
 def get_response_finetuning(chat_id, question):
     """ Obtiene la respuesta de la bd vectorial basada en la consulta. """
     
     print("Flujo con Fine-Tuning")
-    # question = query_rephrasing_with_crewai(question, selected_llm_model)
-    # # user_memory(chat_id) #pasar historial de conversacion a memoria 
-    # inputs = {"question": question}
-    # print(question)
-
-    # llm_client = LLMClient(
-    #     provider=provider,  
-    #     model=selected_llm_model,
-    #     base_url=base_url,  
-    #     api_key=api_key       
-    # )
-    # llm_crew = llm_client.get_llm_crew()
-
-    # #agentic_crew4
-    # finetuning_crew = build_crew_finetuning(llm_crew)
-
-    # try:
-    #     result = finetuning_crew.kickoff(inputs=inputs)
-    #     response_text = result.raw 
-    #     return response_text if response_text else "No se ha encontrado información"
-    # except KeyError as e:
-    #     return f"Lo siento, ocurrio un error: {str(e)}"
-
-# def user_memory(chat_id):
     
-#     messages = [
-#         {
-#             "role": "user" if isinstance(msg, HumanMessage) else "assistant",
-#             "content": msg.content
-#         } 
-#         # for chat_id in st.session_state.history
-#         for msg in st.session_state.chat_store[chat_id].messages
-#     ]
+    collection_name_active = "bdv2"
+    collection_name_active_summary = "bdvs3"
+    use_memory = False
     
-#     if messages:
-#         client_memo.add(messages, user_id=chat_id)
+    payload = {
+        "model_llm_responses": selected_llm_model,
+        "collection_name_active": collection_name_active, 
+        "collection_name_active_summary": collection_name_active_summary, 
+        "question": question,
+        "top_k": 4,
+        "use_external_data": True,
+        "use_memory": use_memory,
+        "chat_id": chat_id,
+        "crew": "crew_finetuning"
+    }
 
-
+    try:
+        res = requests.post(f"{API_BASE_URL}/agentic/ask", json=payload)
+        return res.json().get("response", "Sin respuesta")
+    except Exception as e:
+        return f"Error al consultar /agentic/ask: {str(e)}"
 
     
 ### ------- GUI ----------

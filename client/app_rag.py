@@ -33,7 +33,7 @@ def save_history():
     }
 
     response = requests.post(
-        f"{API_BASE_URL}/history/save_all", 
+        f"{API_BASE_URL}/rag/history/save_all", 
         json=chat_data
     )
     return response.ok
@@ -41,7 +41,7 @@ def save_history():
         
 def load_history():
     try:
-        response = requests.get(f"{API_BASE_URL}/history/load_all")
+        response = requests.get(f"{API_BASE_URL}/rag/history/load_all")
         if response.status_code == 200:
             chat_data = response.json()
             for chat_id, chat_info in chat_data.items():
