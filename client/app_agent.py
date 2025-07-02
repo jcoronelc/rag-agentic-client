@@ -167,7 +167,7 @@ def get_response_finetuning(chat_id, question):
 
     
 ### ------- GUI ----------
-st.set_page_config(page_title="Chatbot MultiAgente", page_icon="🦜")
+st.set_page_config(page_title="Chatbot MultiAgente", page_icon="🤖")
 st.title("Chatea con :blue[tus datos] 🤖")
 
 # ---- Inicializacion de claves para la session

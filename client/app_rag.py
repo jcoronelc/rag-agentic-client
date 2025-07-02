@@ -136,7 +136,7 @@ def get_response(chat_id, question):
         return f"Error al consultar /ask: {str(e)}"
 
 ### ------- GUI ----------
-st.set_page_config(page_title="Chatbot RAG", page_icon="")
+st.set_page_config(page_title="Chatbot RAG", page_icon="⚙️")
 st.title("Chatea con :blue[tus datos] 🤖")
 
 # ---- Inicializacion de claves para la session
