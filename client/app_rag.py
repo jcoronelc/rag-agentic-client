@@ -128,6 +128,7 @@ def get_response(chat_id, question):
         "chat_id": chat_id
     }
 
+
     try:
         res = requests.post(f"{API_BASE_URL}/ask", json=payload)
         return res.json().get("response", "Sin respuesta")
