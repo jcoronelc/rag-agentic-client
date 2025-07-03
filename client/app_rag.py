@@ -217,22 +217,22 @@ with st.container():
         user_query = st.chat_input("Escribe tu mensaje ✍")
         
     with col3: 
-        tab1, tab2 = st.columns([1, 1], gap="small")
+        # tab1, tab2 = st.columns([1, 1], gap="small")
 
-        with tab1:
-            if st.button("🗑"):
-                st.session_state.chat_store[chat_id] = ChatMessageHistory()
-                print(f"cleaning {chat_id}")
-                # delete_memory(chat_id) #eliminar la memoria para esa conversacion
-                save_history() 
-                st.rerun()
+        # with tab1:
+        if st.button("🗑"):
+            st.session_state.chat_store[chat_id] = ChatMessageHistory()
+            print(f"cleaning {chat_id}")
+            # delete_memory(chat_id) #eliminar la memoria para esa conversacion
+            save_history() 
+            st.rerun()
         
-        with tab2:
-            if "show_uploader" not in st.session_state:
-                st.session_state.show_uploader = False
+        # with tab2:
+        #     if "show_uploader" not in st.session_state:
+        #         st.session_state.show_uploader = False
 
-            if st.button("📎"):
-                st.session_state.show_uploader = not st.session_state.show_uploader
+        #     if st.button("📎"):
+        #         st.session_state.show_uploader = not st.session_state.show_uploader
 
         if st.session_state.show_uploader:
             uploaded_file = st.file_uploader("Arrastra un archivo aquí", type=["txt", "pdf"], key="upload_file")
