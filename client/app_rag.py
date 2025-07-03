@@ -15,7 +15,7 @@ SESSION_ID = "1234"
 B_INST, E_INST = "<s>[INST]", "[/INST]</s>"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 
-API_BASE_URL = "https://fd8d-200-55-228-82.ngrok-free.app/api"
+API_BASE_URL = "https://0773-200-55-228-82.ngrok-free.app/api"
 
 
 def save_history():
@@ -217,44 +217,44 @@ with st.container():
         user_query = st.chat_input("Escribe tu mensaje ✍")
         
     with col3: 
-        tab1, tab2 = st.columns([1, 1], gap="small")
+        # tab1, tab2 = st.columns([1, 1], gap="small")
 
-        with tab1:
-            if st.button("🗑"):
-                st.session_state.chat_store[chat_id] = ChatMessageHistory()
-                print(f"cleaning {chat_id}")
-                # delete_memory(chat_id) #eliminar la memoria para esa conversacion
-                save_history() 
-                st.rerun()
+        # with tab1:
+        if st.button("🗑"):
+            st.session_state.chat_store[chat_id] = ChatMessageHistory()
+            print(f"cleaning {chat_id}")
+            # delete_memory(chat_id) #eliminar la memoria para esa conversacion
+            save_history() 
+            st.rerun()
         
-        with tab2:
-            if "show_uploader" not in st.session_state:
-                st.session_state.show_uploader = False
+        # with tab2:
+        #     if "show_uploader" not in st.session_state:
+        #         st.session_state.show_uploader = False
 
-            if st.button("📎"):
-                st.session_state.show_uploader = not st.session_state.show_uploader
+        #     if st.button("📎"):
+        #         st.session_state.show_uploader = not st.session_state.show_uploader
 
-        if st.session_state.show_uploader:
-            uploaded_file = st.file_uploader("Arrastra un archivo aquí", type=["txt", "pdf"], key="upload_file")
+        # if st.session_state.show_uploader:
+        #     uploaded_file = st.file_uploader("Arrastra un archivo aquí", type=["txt", "pdf"], key="upload_file")
             
-            if uploaded_file:
-                collection_name = st.text_input("Nombre de la colección", key="collection_name")
-                if st.button("✅ Enviar"):
-                    with st.spinner("Subiendo archivo y creando colección..."):
-                        files = {
-                            "file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)
-                        }
-                        data = {
-                            "collection_name": collection_name
-                        }
-                        try:
-                            response = requests.post(f"{API_BASE_URL}/upload", files=files, data=data)
-                            if response.status_code == 200:
-                                st.success("Colección creada correctamente")
-                            else:
-                                st.error(f"Error al crear la colección: {response.text}")
-                        except Exception as e:
-                            st.error(f"Error de conexión: {str(e)}")
+        #     if uploaded_file:
+        #         collection_name = st.text_input("Nombre de la colección", key="collection_name")
+        #         if st.button("✅ Enviar"):
+        #             with st.spinner("Subiendo archivo y creando colección..."):
+        #                 files = {
+        #                     "file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)
+        #                 }
+        #                 data = {
+        #                     "collection_name": collection_name
+        #                 }
+        #                 try:
+        #                     response = requests.post(f"{API_BASE_URL}/upload", files=files, data=data)
+        #                     if response.status_code == 200:
+        #                         st.success("Colección creada correctamente")
+        #                     else:
+        #                         st.error(f"Error al crear la colección: {response.text}")
+        #                 except Exception as e:
+        #                     st.error(f"Error de conexión: {str(e)}")
         
 if user_query:
     with st.spinner("Generando respuesta..."):
