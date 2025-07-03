@@ -234,27 +234,27 @@ with st.container():
         #     if st.button("📎"):
         #         st.session_state.show_uploader = not st.session_state.show_uploader
 
-        if st.session_state.show_uploader:
-            uploaded_file = st.file_uploader("Arrastra un archivo aquí", type=["txt", "pdf"], key="upload_file")
+        # if st.session_state.show_uploader:
+        #     uploaded_file = st.file_uploader("Arrastra un archivo aquí", type=["txt", "pdf"], key="upload_file")
             
-            if uploaded_file:
-                collection_name = st.text_input("Nombre de la colección", key="collection_name")
-                if st.button("✅ Enviar"):
-                    with st.spinner("Subiendo archivo y creando colección..."):
-                        files = {
-                            "file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)
-                        }
-                        data = {
-                            "collection_name": collection_name
-                        }
-                        try:
-                            response = requests.post(f"{API_BASE_URL}/upload", files=files, data=data)
-                            if response.status_code == 200:
-                                st.success("Colección creada correctamente")
-                            else:
-                                st.error(f"Error al crear la colección: {response.text}")
-                        except Exception as e:
-                            st.error(f"Error de conexión: {str(e)}")
+        #     if uploaded_file:
+        #         collection_name = st.text_input("Nombre de la colección", key="collection_name")
+        #         if st.button("✅ Enviar"):
+        #             with st.spinner("Subiendo archivo y creando colección..."):
+        #                 files = {
+        #                     "file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)
+        #                 }
+        #                 data = {
+        #                     "collection_name": collection_name
+        #                 }
+        #                 try:
+        #                     response = requests.post(f"{API_BASE_URL}/upload", files=files, data=data)
+        #                     if response.status_code == 200:
+        #                         st.success("Colección creada correctamente")
+        #                     else:
+        #                         st.error(f"Error al crear la colección: {response.text}")
+        #                 except Exception as e:
+        #                     st.error(f"Error de conexión: {str(e)}")
         
 if user_query:
     with st.spinner("Generando respuesta..."):
