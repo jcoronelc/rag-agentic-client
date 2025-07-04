@@ -15,8 +15,7 @@ SESSION_ID = "1234"
 B_INST, E_INST = "<s>[INST]", "[/INST]</s>"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 
-API_BASE_URL = "https://7dcc-191-100-156-65.ngrok-free.app/api"
-
+API_BASE_URL = "https://1b8d-200-55-228-82.ngrok-free.app/api"
 
 def save_history():
     chat_data = {
@@ -127,7 +126,6 @@ def get_response(chat_id, question):
         "use_memory": use_memory,
         "chat_id": chat_id
     }
-
 
     try:
         res = requests.post(f"{API_BASE_URL}/ask", json=payload)
