@@ -15,7 +15,7 @@ SESSION_ID = "1234"
 B_INST, E_INST = "<s>[INST]", "[/INST]</s>"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 
-API_BASE_URL = "https://1b8d-200-55-228-82.ngrok-free.app/api"
+API_BASE_URL = "https://42c7-191-100-156-65.ngrok-free.app/api"
 
 def save_history():
     chat_data = {
