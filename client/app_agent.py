@@ -117,7 +117,7 @@ def get_response(chat_id, question):
     
     collection_name_active = "bdv2"
     collection_name_active_summary = "bdvs3"
-    use_memory = True
+    use_memory = False
     
     payload = {
         "model_llm_responses": selected_llm_model,
