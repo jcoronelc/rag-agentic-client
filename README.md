@@ -45,6 +45,6 @@ streamlit run app_rag.py
 
 ## ✅ ¡Listo!
 
-Tu frontend de RAG Agentic estará disponible en el navegador en:
+Tu frontend estará disponible en el navegador en:
 
 http://localhost:8501
