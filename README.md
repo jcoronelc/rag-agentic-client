@@ -25,7 +25,7 @@ source env/bin/activate   # En Windows: env\Scripts\activate
 
 # Instalar dependencias
 pip install -r requirements.txt
-
+```
 
 ## 🚀 Ejecutar el frontend
 
