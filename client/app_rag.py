@@ -15,7 +15,7 @@ SESSION_ID = "1234"
 B_INST, E_INST = "<s>[INST]", "[/INST]</s>"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 
-API_BASE_URL = "https://f62149eea95b.ngrok-free.app/api"
+API_BASE_URL = "https://06f249377e0b.ngrok-free.app/api"
 
 def save_history():
     chat_data = {
@@ -113,7 +113,7 @@ def get_response(chat_id, question):
     """ Obtiene la respuesta de la bd vectorial basada en la consulta. """
 
     collection_name_active = "bdv2"
-    collection_name_active_summary = "bdvs3"
+    collection_name_active_summary = "bdv_ureglas1"
     use_memory = False
 
     payload = {
